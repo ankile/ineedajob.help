@@ -5,6 +5,7 @@ import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
 } from "firebase/auth";
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 
 const LoginPage: React.FC = () => {
     const [email, setEmail] = useState<string>("");
@@ -16,11 +17,31 @@ const LoginPage: React.FC = () => {
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         try {
+            let userCredential;
+            const db = getFirestore();
+
             if (isSignUp) {
-                await createUserWithEmailAndPassword(auth, email, password);
+                userCredential = await createUserWithEmailAndPassword(
+                    auth,
+                    email,
+                    password
+                );
+                const userDocRef = doc(db, "users", userCredential.user.uid);
+                await setDoc(userDocRef, { email });
             } else {
-                await signInWithEmailAndPassword(auth, email, password);
+                userCredential = await signInWithEmailAndPassword(
+                    auth,
+                    email,
+                    password
+                );
             }
+
+            const userDocRef = doc(db, "users", userCredential.user.uid);
+            const userDocSnapshot = await getDoc(userDocRef);
+
+            // Do something with the user document data
+            console.log(userDocSnapshot.data());
+
             router.push("/");
         } catch (error: any) {
             setError(error.message);
