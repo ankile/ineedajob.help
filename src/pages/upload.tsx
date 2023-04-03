@@ -8,6 +8,8 @@ import { useUser } from "../UserContext";
 
 const Upload: React.FC = () => {
     const fileInput = useRef<HTMLInputElement>(null);
+
+    // Get currently logged in user
     const { user } = useUser();
 
     const handleUpload = async (e: React.FormEvent) => {
@@ -21,18 +23,23 @@ const Upload: React.FC = () => {
             return;
         }
 
+        if (!user) {
+            alert("Please login to upload");
+            return;
+        }
+
         const file = fileInput.current.files[0];
         const storage = getStorage(firebaseApp);
-        const fileRef = ref(storage, `resumes/${user.uid}/${file.name}`);
+        const fileRef = ref(storage, `resumes/${user.id}/${file.name}`);
         await uploadBytes(fileRef, file);
 
         const firestore = getFirestore(firebaseApp);
         const fileInfo = {
             timestamp: Timestamp.fromDate(new Date()),
-            storagePath: `resumes/${user.uid}/${file.name}`,
+            storagePath: `resumes/${user.id}/${file.name}`,
         };
         await setDoc(
-            doc(firestore, `users/${user.uid}/uploads/${file.name}`),
+            doc(firestore, `users/${user.id}/uploads/${file.name}`),
             fileInfo
         );
 

@@ -27,7 +27,10 @@ const LoginPage: React.FC = () => {
                     password
                 );
                 const userDocRef = doc(db, "users", userCredential.user.uid);
-                await setDoc(userDocRef, { email });
+                await setDoc(userDocRef, {
+                    id: userCredential.user.uid,
+                    email,
+                });
             } else {
                 userCredential = await signInWithEmailAndPassword(
                     auth,
@@ -36,13 +39,7 @@ const LoginPage: React.FC = () => {
                 );
             }
 
-            const userDocRef = doc(db, "users", userCredential.user.uid);
-            const userDocSnapshot = await getDoc(userDocRef);
-
-            // Do something with the user document data
-            console.log(userDocSnapshot.data());
-
-            router.push("/");
+            router.push("/upload");
         } catch (error: any) {
             setError(error.message);
         }

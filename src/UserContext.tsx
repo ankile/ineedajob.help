@@ -3,8 +3,13 @@ import { onAuthStateChanged } from "firebase/auth";
 import { getDoc, doc } from "firebase/firestore";
 import { auth, firestore } from "./firebase";
 
+interface User {
+    id: string;
+    email: string;
+}
+
 interface UserContextProps {
-    user: any;
+    user: User | null;
     loading: boolean;
 }
 
@@ -18,7 +23,7 @@ const UserContext = createContext<UserContextProps>({
 });
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
@@ -26,7 +31,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             if (firebaseUser) {
                 const userDocRef = doc(firestore, "users", firebaseUser.uid);
                 const userDocSnapshot = await getDoc(userDocRef);
-                setUser(userDocSnapshot.data());
+                setUser(userDocSnapshot.data() as User);
             } else {
                 setUser(null);
             }
