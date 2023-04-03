@@ -1,9 +1,14 @@
 import React, { useRef } from "react";
 import { PlusIcon } from "@heroicons/react/24/outline";
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { getStorage, ref, uploadBytes, updateMetadata } from "firebase/storage";
 import firebaseApp from "../firebase";
-import { doc, setDoc, Timestamp } from "firebase/firestore";
-import { getFirestore } from "firebase/firestore";
+import {
+    Timestamp,
+    collection,
+    getFirestore,
+    doc,
+    setDoc,
+} from "firebase/firestore";
 import { useUser } from "../UserContext";
 
 const Upload: React.FC = () => {
@@ -27,21 +32,25 @@ const Upload: React.FC = () => {
             alert("Please login to upload");
             return;
         }
-
-        const file = fileInput.current.files[0];
-        const storage = getStorage(firebaseApp);
-        const fileRef = ref(storage, `resumes/${user.id}/${file.name}`);
-        await uploadBytes(fileRef, file);
-
         const firestore = getFirestore(firebaseApp);
+        const storage = getStorage(firebaseApp);
+        const file = fileInput.current.files[0];
+
+        const docRef = doc(collection(firestore, `users/${user.id}/uploads`));
+
+        const fileRef = ref(storage, `resumes/${user.id}/${docRef.id}`);
+        await uploadBytes(fileRef, file);
+        await updateMetadata(fileRef, {
+            customMetadata: {
+                ownerId: user.id,
+            },
+        });
+
         const fileInfo = {
             timestamp: Timestamp.fromDate(new Date()),
-            storagePath: `resumes/${user.id}/${file.name}`,
+            storagePath: fileRef.fullPath,
         };
-        await setDoc(
-            doc(firestore, `users/${user.id}/uploads/${file.name}`),
-            fileInfo
-        );
+        await setDoc(docRef, fileInfo);
 
         alert("File uploaded");
     };
