@@ -5,8 +5,7 @@ import { auth } from "../firebase";
 import { useRef } from "react";
 
 import { getStorage, ref, uploadBytes } from "firebase/storage";
-import { getFirestore } from "firebase/firestore";
-import firebaseApp from "../firebase"; // assuming you have exported the initialized app as firebaseApp
+import firebaseApp from "../firebase";
 
 const Home = () => {
     const router = useRouter();
@@ -42,10 +41,26 @@ const Home = () => {
     return (
         <div>
             <h1>Upload Resume</h1>
-            <form onSubmit={handleUpload}>
+            {/* <form onSubmit={handleUpload}>
                 <input type="file" ref={fileInput} />
                 <button type="submit">Upload</button>
-            </form>
+            </form> */}
+            {/* Button to go to upload page */}
+            <button
+                onClick={() => {
+                    router.push("/upload");
+                }}
+            >
+                Upload Resume
+            </button>
+            {/* Logout button */}
+            <button
+                onClick={() => {
+                    auth.signOut();
+                }}
+            >
+                Sign Out
+            </button>
         </div>
     );
 };
