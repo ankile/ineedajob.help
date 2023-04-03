@@ -53,14 +53,6 @@ const Home = () => {
             >
                 Upload Resume
             </button>
-            {/* Logout button */}
-            <button
-                onClick={() => {
-                    auth.signOut();
-                }}
-            >
-                Sign Out
-            </button>
         </div>
     );
 };

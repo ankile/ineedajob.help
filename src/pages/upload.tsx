@@ -1,12 +1,42 @@
 import React, { useRef } from "react";
 import { PlusIcon } from "@heroicons/react/24/outline";
+import { getStorage, ref, uploadBytes } from "firebase/storage";
+import firebaseApp from "../firebase";
+import { doc, setDoc, Timestamp } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
+import { useUser } from "../UserContext";
 
 const Upload: React.FC = () => {
     const fileInput = useRef<HTMLInputElement>(null);
+    const { user } = useUser();
 
     const handleUpload = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Add your upload functionality here
+        if (!fileInput.current) {
+            alert("Please select a file");
+            return;
+        }
+        if (!fileInput.current.files) {
+            alert("Please select a file");
+            return;
+        }
+
+        const file = fileInput.current.files[0];
+        const storage = getStorage(firebaseApp);
+        const fileRef = ref(storage, `resumes/${user.uid}/${file.name}`);
+        await uploadBytes(fileRef, file);
+
+        const firestore = getFirestore(firebaseApp);
+        const fileInfo = {
+            timestamp: Timestamp.fromDate(new Date()),
+            storagePath: `resumes/${user.uid}/${file.name}`,
+        };
+        await setDoc(
+            doc(firestore, `users/${user.uid}/uploads/${file.name}`),
+            fileInfo
+        );
+
+        alert("File uploaded");
     };
 
     return (
