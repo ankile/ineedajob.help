@@ -36,9 +36,12 @@ const Upload: React.FC = () => {
         const storage = getStorage(firebaseApp);
         const file = fileInput.current.files[0];
 
-        const docRef = doc(collection(firestore, `users/${user.id}/uploads`));
+        const docRef = doc(collection(firestore, `users/${user.id}/resumes`));
 
-        const fileRef = ref(storage, `resumes/${user.id}/${docRef.id}`);
+        const fileRef = ref(
+            storage,
+            `userContent/${user.id}/resumes/${docRef.id}`
+        );
         await uploadBytes(fileRef, file);
         await updateMetadata(fileRef, {
             customMetadata: {
@@ -47,8 +50,10 @@ const Upload: React.FC = () => {
         });
 
         const fileInfo = {
+            fileName: file.name,
             timestamp: Timestamp.fromDate(new Date()),
             storagePath: fileRef.fullPath,
+            status: "pending",
         };
         await setDoc(docRef, fileInfo);
 

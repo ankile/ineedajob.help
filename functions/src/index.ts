@@ -10,14 +10,22 @@ admin.initializeApp({
     storageBucket: "i-need-a-job.appspot.com",
 });
 
-const storage = new Storage();
 const db = admin.firestore();
 
-export const onFileUpload = functions.storage
-    .object()
-    .onFinalize(async (object) => {
-        const fileName = object.name;
-        const contentType = object.contentType;
+export const onFileUpload = functions.firestore
+    .document("users/{userId}/resumes/{id}")
+    .onCreate(async (snapshot, _) => {
+        const resumeData = snapshot.data();
+        if (!resumeData) {
+            console.log("Missing resume data");
+            return;
+        }
+
+        const fileName = resumeData.fileName;
+
+        const bucket = admin.storage().bucket();
+        const file = bucket.file(fileName);
+        const contentType = (await file.getMetadata())[0].contentType;
 
         if (!fileName || !contentType) {
             console.log("Missing file name or content type");
@@ -33,9 +41,6 @@ export const onFileUpload = functions.storage
             console.log("Unsupported file type");
             return;
         }
-
-        const bucket = storage.bucket(object.bucket);
-        const file = bucket.file(fileName);
 
         const tempFilePath = `/tmp/${fileName}`;
         await file.download({ destination: tempFilePath });
@@ -57,14 +62,14 @@ export const onFileUpload = functions.storage
             extractedText = value;
         }
 
-        if (extractedText) {
-            const firestoreDoc = db.collection("resumes").doc(); // Generates a random document ID
-            await firestoreDoc.set({ text: extractedText });
-            console.log(
-                "Extracted text stored in Firestore document:",
-                firestoreDoc.id
-            );
-        } else {
+        if (!extractedText) {
             console.log("Could not extract text from the resume");
+            return;
         }
+
+        await snapshot.ref.update({ extractedText });
+        console.log(
+            "Extracted text stored in Firestore document:",
+            snapshot.ref.path
+        );
     });
