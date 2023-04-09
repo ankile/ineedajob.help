@@ -18,11 +18,18 @@ const Navbar: React.FC = () => {
         <nav className="bg-blue-500 p-6">
             <div className="container mx-auto">
                 <div className="flex items-center justify-between">
-                    <Link href="/">
-                        <span className="text-white text-lg font-semibold">
-                            INeedAJob
-                        </span>
-                    </Link>
+                    <div>
+                        <Link href="/">
+                            <span className="text-white text-lg font-semibold">
+                                INeedAJob
+                            </span>
+                        </Link>
+                        <Link href="/upload" className="mx-8">
+                            <span className="text-white text-lg">
+                                Upload Resume
+                            </span>
+                        </Link>
+                    </div>
                     <div className="flex items-center space-x-4">
                         {user ? (
                             <>

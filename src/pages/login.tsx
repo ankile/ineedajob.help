@@ -39,7 +39,7 @@ const LoginPage: React.FC = () => {
                 );
             }
 
-            router.push("/upload");
+            router.push("/");
         } catch (error: any) {
             setError(error.message);
         }

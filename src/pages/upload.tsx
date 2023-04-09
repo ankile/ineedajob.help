@@ -1,6 +1,12 @@
 import React, { useRef } from "react";
 import { PlusIcon } from "@heroicons/react/24/outline";
-import { getStorage, ref, uploadBytes, updateMetadata } from "firebase/storage";
+import {
+    getStorage,
+    ref,
+    uploadBytes,
+    updateMetadata,
+    getDownloadURL,
+} from "firebase/storage";
 import firebaseApp from "../firebase";
 import {
     Timestamp,
@@ -48,12 +54,15 @@ const Upload: React.FC = () => {
                 ownerId: user.id,
             },
         });
+        const downloadUrl = await getDownloadURL(fileRef);
 
         const fileInfo = {
             fileName: file.name,
             timestamp: Timestamp.fromDate(new Date()),
             storagePath: fileRef.fullPath,
             status: "pending",
+            downloadUrl,
+            archived: false,
         };
         await setDoc(docRef, fileInfo);
 
@@ -62,7 +71,7 @@ const Upload: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8 bg-white p-6 rounded-lg shadow-md">
+            <div className="max-w-md w-full bg-white p-6 rounded-lg shadow-md -mt-64">
                 <div>
                     <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
                         Upload Your Resume

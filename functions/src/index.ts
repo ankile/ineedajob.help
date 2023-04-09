@@ -1,6 +1,5 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import { Storage } from "@google-cloud/storage";
 import * as pdfParse from "pdf-parse";
 import { readFileSync } from "fs";
 import * as mammoth from "mammoth";
@@ -10,24 +9,21 @@ admin.initializeApp({
     storageBucket: "i-need-a-job.appspot.com",
 });
 
-const db = admin.firestore();
-
 export const onFileUpload = functions.firestore
     .document("users/{userId}/resumes/{id}")
-    .onCreate(async (snapshot, _) => {
+    .onCreate(async (snapshot) => {
         const resumeData = snapshot.data();
         if (!resumeData) {
             console.log("Missing resume data");
             return;
         }
 
-        const fileName = resumeData.fileName;
-
+        const storagePath = resumeData.storagePath;
         const bucket = admin.storage().bucket();
-        const file = bucket.file(fileName);
+        const file = bucket.file(storagePath);
         const contentType = (await file.getMetadata())[0].contentType;
 
-        if (!fileName || !contentType) {
+        if (!contentType) {
             console.log("Missing file name or content type");
             return;
         }
@@ -42,7 +38,7 @@ export const onFileUpload = functions.firestore
             return;
         }
 
-        const tempFilePath = `/tmp/${fileName}`;
+        const tempFilePath = `/tmp/tmp_file.${contentType.split("/")[1]}`;
         await file.download({ destination: tempFilePath });
 
         let extractedText: string | undefined;
