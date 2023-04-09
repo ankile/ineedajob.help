@@ -3,6 +3,8 @@ import * as admin from "firebase-admin";
 import * as pdfParse from "pdf-parse";
 import { readFileSync } from "fs";
 import * as mammoth from "mammoth";
+import axios from "axios";
+import { load } from "cheerio";
 
 admin.initializeApp({
     credential: admin.credential.cert("./serviceAccountKey.json"),
@@ -69,3 +71,25 @@ export const onFileUpload = functions.firestore
             snapshot.ref.path
         );
     });
+
+export const getWebsiteContents = functions.https.onRequest(
+    async (request, response) => {
+        const url = request.query.url as string;
+        const website = await fetch(url);
+        const websiteText = await website.text();
+
+        const $ = load(websiteText);
+
+        // Remove script and style elements
+        $("script, style").remove();
+
+        // Get the text content of the page
+        const text = $("body").text();
+
+        // Remove extra whitespaces and newlines
+        const lines = text.split("\n").map((line) => line.trim());
+        const cleanedText = lines.filter((line) => line).join("\n");
+
+        response.send(cleanedText);
+    }
+);

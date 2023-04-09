@@ -54,14 +54,12 @@ const Upload: React.FC = () => {
                 ownerId: user.id,
             },
         });
-        const downloadUrl = await getDownloadURL(fileRef);
 
         const fileInfo = {
             fileName: file.name,
             timestamp: Timestamp.fromDate(new Date()),
             storagePath: fileRef.fullPath,
             status: "pending",
-            downloadUrl,
             archived: false,
         };
         await setDoc(docRef, fileInfo);
