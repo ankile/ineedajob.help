@@ -1,6 +1,7 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import "../styles/tailwind.css";
+import "react-tooltip/dist/react-tooltip.css";
 
 import Navbar from "../components/Navbar";
 import { UserProvider } from "../UserContext";

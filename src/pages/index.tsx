@@ -20,6 +20,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { getDownloadURL, ref } from "firebase/storage";
 import Link from "next/link";
+import { Tooltip } from "react-tooltip";
 
 interface Resume {
     id: string;
@@ -93,64 +94,77 @@ const Home = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col">
-            <h1 className="text-4xl mt-8 text-slate-600 font-bold self-center">
-                Dashboard
-            </h1>
-            <div className="flex items-start justify-evenly py-12 px-4 sm:px-6 lg:px-8 pt-24">
-                <div className="max-w-xl w-full bg-white p-6 rounded-lg shadow-md -mt-16">
-                    <div>
-                        <h2 className="text-center text-3xl font-semibold text-gray-900">
-                            Cover Letters
-                        </h2>
-                    </div>
-                </div>
-                <div className="max-w-xl w-full bg-white p-6 rounded-lg shadow-md -mt-16">
-                    <div className="flex flex-col">
-                        <h2 className="text-center text-3xl font-semibold text-gray-900 mb-2">
-                            Resumes
-                        </h2>
-                        <div className="mb-8">
-                            {resumes.map((resume) => (
-                                <div
-                                    key={resume.id}
-                                    className="flex flex-row justify-between"
-                                >
-                                    <div className="flex">
-                                        <div
-                                            className="w-5 cursor-pointer mr-2"
-                                            onClick={() => download(resume)}
-                                        >
-                                            <ArrowDownTrayIcon />
-                                        </div>
-                                        <span>{resume.fileName}</span>
-                                    </div>
-                                    <div className="flex">
-                                        <div
-                                            className="w-5 cursor-pointer ml-2"
-                                            onClick={() => archive(resume)}
-                                        >
-                                            <ArchiveBoxArrowDownIcon />
-                                        </div>
-                                        <div
-                                            className="w-5 cursor-pointer ml-2"
-                                            onClick={() => remove(resume)}
-                                        >
-                                            <TrashIcon color="#cc0000" />
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+        <>
+            <div className="min-h-screen bg-gray-100 flex flex-col">
+                <h1 className="text-4xl mt-8 text-slate-600 font-bold self-center">
+                    Dashboard
+                </h1>
+                <div className="flex items-start justify-evenly py-12 px-4 sm:px-6 lg:px-8 pt-24">
+                    <div className="max-w-xl w-full bg-white p-6 rounded-lg shadow-md -mt-16">
+                        <div>
+                            <h2 className="text-center text-3xl font-semibold text-gray-900">
+                                Cover Letters
+                            </h2>
                         </div>
-                        <Link href="/upload" className="self-center">
-                            <span className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded">
-                                Upload Resume
-                            </span>
-                        </Link>
+                    </div>
+                    <div className="max-w-xl w-full bg-white p-6 rounded-lg shadow-md -mt-16">
+                        <div className="flex flex-col">
+                            <h2 className="text-center text-3xl font-semibold text-gray-900 mb-2">
+                                Resumes
+                            </h2>
+                            <div className="mb-8">
+                                {resumes.map((resume) => (
+                                    <div
+                                        key={resume.id}
+                                        className="flex flex-row justify-between"
+                                    >
+                                        <div className="flex">
+                                            <div
+                                                className="w-5 cursor-pointer mr-2"
+                                                onClick={() => download(resume)}
+                                                data-tooltip-id="download"
+                                                data-tooltip-content="Download Resume"
+                                            >
+                                                <ArrowDownTrayIcon />
+                                            </div>
+                                            <span className="cursor-pointer hover:text-blue-500">
+                                                {resume.fileName}
+                                            </span>
+                                        </div>
+                                        <div className="flex">
+                                            <div
+                                                className="w-5 cursor-pointer ml-2"
+                                                onClick={() => archive(resume)}
+                                                data-tooltip-id="archive"
+                                                data-tooltip-content="Archive Resume"
+                                            >
+                                                <ArchiveBoxArrowDownIcon />
+                                            </div>
+                                            <div
+                                                className="w-5 cursor-pointer ml-2"
+                                                onClick={() => remove(resume)}
+                                                data-tooltip-id="delete"
+                                                data-tooltip-content="Delete Resume"
+                                            >
+                                                <TrashIcon color="#cc0000" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <Link href="/upload" className="self-center">
+                                <span className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded">
+                                    Upload Resume
+                                </span>
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+            <Tooltip id="download" />
+            <Tooltip id="archive" />
+            <Tooltip id="delete" />
+        </>
     );
 };
 export default Home;
